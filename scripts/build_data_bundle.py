@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
-"""Build browser-loadable dashboard data and copy the localization layer."""
+"""Build browser-loadable dashboard data with the Chinese localization layer."""
 from __future__ import annotations
 
 import json
-import shutil
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data"
 OUT = ROOT / "data-bundle.js"
 LOCALIZATION_SOURCE = ROOT / "ui" / "localization.js"
-LOCALIZATION_OUT = ROOT / "localization.js"
 
 
 def load(name: str) -> dict:
@@ -25,17 +23,15 @@ def main() -> None:
         "events": load("events.json"),
         "market": load("market.json"),
     }
-    OUT.write_text(
+    bundle = (
         "window.PC_PROCUREMENT_DATA = "
         + json.dumps(payload, ensure_ascii=False, indent=2)
-        + ";\n",
-        encoding="utf-8",
+        + ";\n"
     )
     if LOCALIZATION_SOURCE.exists():
-        shutil.copyfile(LOCALIZATION_SOURCE, LOCALIZATION_OUT)
+        bundle += "\n" + LOCALIZATION_SOURCE.read_text(encoding="utf-8") + "\n"
+    OUT.write_text(bundle, encoding="utf-8")
     print(f"Wrote {OUT}")
-    if LOCALIZATION_SOURCE.exists():
-        print(f"Wrote {LOCALIZATION_OUT}")
 
 
 if __name__ == "__main__":
