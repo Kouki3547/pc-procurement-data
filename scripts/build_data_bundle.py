@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
-"""Build a browser-loadable data bundle from the dashboard JSON files."""
+"""Build browser-loadable dashboard data and copy the localization layer."""
 from __future__ import annotations
 
 import json
+import shutil
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data"
 OUT = ROOT / "data-bundle.js"
+LOCALIZATION_SOURCE = ROOT / "ui" / "localization.js"
+LOCALIZATION_OUT = ROOT / "localization.js"
 
 
 def load(name: str) -> dict:
@@ -28,7 +31,11 @@ def main() -> None:
         + ";\n",
         encoding="utf-8",
     )
+    if LOCALIZATION_SOURCE.exists():
+        shutil.copyfile(LOCALIZATION_SOURCE, LOCALIZATION_OUT)
     print(f"Wrote {OUT}")
+    if LOCALIZATION_SOURCE.exists():
+        print(f"Wrote {LOCALIZATION_OUT}")
 
 
 if __name__ == "__main__":
