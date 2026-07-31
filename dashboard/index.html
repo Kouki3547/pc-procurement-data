@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="中日电脑硬件价格、汇率与采购渠道动态比较仪表盘。">
+  <meta name="theme-color" content="#0f6fff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="装机采购">
+  <title>PC 硬件采购仪表盘</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand-block">
+        <p class="eyebrow">2027 毕业装机计划</p>
+        <h1>PC 硬件采购仪表盘</h1>
+        <p class="subtitle">以人民币到手价比较日本与中国渠道，持续跟踪新品、汇率和保修风险。</p>
+      </div>
+      <div class="actions" aria-label="数据与显示设置">
+        <button id="themeButton" type="button" aria-label="切换主题">深浅色</button>
+        <label class="file-label">导入数据<input id="importInput" type="file" accept="application/json"></label>
+        <button id="exportButton" type="button">导出数据</button>
+      </div>
+    </header>
+
+    <section class="metrics mobile-page" data-mobile-view="home" aria-label="仪表盘摘要">
+      <article class="metric"><div class="label">日元 → 人民币</div><div class="value" id="fxMetric">—</div><div class="hint" id="fxDate">—</div></article>
+      <article class="metric"><div class="label">跟踪产品</div><div class="value" id="productMetric">—</div><div class="hint" id="newProductMetric">—</div></article>
+      <article class="metric"><div class="label">已验证报价</div><div class="value" id="quoteMetric">—</div><div class="hint" id="freshMetric">—</div></article>
+      <article class="metric"><div class="label">计划购买时间</div><div class="value compact">2027年3–4月</div><div class="hint">每月扫描新品并更新价格</div></article>
+    </section>
+
+    <main class="dashboard-grid">
+      <div class="main-column">
+        <section class="panel mobile-page" id="productsPanel" data-mobile-view="products">
+          <div class="panel-head">
+            <div><p class="section-kicker">候选库</p><h2>动态候选产品</h2></div>
+            <span class="pill" id="resultCount">0 款产品</span>
+          </div>
+          <div class="controls">
+            <label class="control search-control">搜索<input id="searchInput" type="search" placeholder="型号、品牌、标签…"></label>
+            <label class="control">类别<select id="categorySelect"><option value="all">全部</option></select></label>
+            <label class="control">状态<select id="statusSelect"><option value="all">全部</option><option value="new">新品</option><option value="active">在售</option><option value="watch">观察</option><option value="retired">退市</option></select></label>
+            <label class="control">排序<select id="sortSelect"><option value="fit-desc">适配评分</option><option value="price-asc">最低已验证价</option><option value="release-desc">最新发布</option><option value="model-asc">型号 A–Z</option></select></label>
+          </div>
+          <div class="table-wrap desktop-products">
+            <table>
+              <thead><tr><th>候选产品</th><th>适配度</th><th>最低已验证价</th><th>推荐渠道</th><th>依据</th><th>配置单</th></tr></thead>
+              <tbody id="productRows"></tbody>
+            </table>
+          </div>
+          <div class="product-card-list" id="productCards"></div>
+        </section>
+
+        <section class="panel mobile-page" id="quotesPanel" data-mobile-view="quotes">
+          <div class="panel-head">
+            <div><p class="section-kicker">实时报价</p><h2>已验证零售报价</h2></div>
+            <span class="pill warn">未核实价格保持为空</span>
+          </div>
+          <div class="quote-grid" id="quoteGrid"></div>
+        </section>
+
+        <section class="panel mobile-page" id="eventsPanel" data-mobile-view="home">
+          <div class="panel-head">
+            <div><p class="section-kicker">市场雷达</p><h2>新品与市场动态</h2></div>
+            <span class="pill">每月更新</span>
+          </div>
+          <div class="list" id="eventList"></div>
+        </section>
+      </div>
+
+      <aside class="side-column">
+        <section class="panel mobile-page" id="scenarioPanel" data-mobile-view="build">
+          <div class="panel-head"><div><p class="section-kicker">预算模拟</p><h2>方案设置</h2></div></div>
+          <div class="budget-row">
+            <label class="control">整机预算（人民币）<input id="budgetRange" type="range" min="8000" max="30000" step="500"></label>
+            <div class="range-value" id="budgetValue">—</div>
+          </div>
+          <label class="control block-control">手动汇率：1 日元兑换人民币<input id="fxOverride" type="number" step="0.000001" min="0.001"></label>
+          <div class="progress" aria-hidden="true"><span id="budgetProgress"></span></div>
+          <p class="sub" id="basketSummary">尚未选择配件。</p>
+          <button id="clearBasket" type="button">清空配置单</button>
+          <div class="callout"><strong id="decisionTitle">当前决策建议</strong><span id="decisionText">先确定可升级的平台架构，接近购买时再锁定具体型号。</span></div>
+        </section>
+
+        <section class="panel mobile-page" id="basketPanel" data-mobile-view="build">
+          <div class="panel-head"><div><p class="section-kicker">Build</p><h2>已选配置单</h2></div><span class="pill" id="basketCount">0 项</span></div>
+          <div class="list" id="basketList"></div>
+        </section>
+
+        <section class="panel mobile-page" id="rulesPanel" data-mobile-view="home">
+          <h2>采购规则</h2>
+          <div class="list" id="ruleList"></div>
+        </section>
+
+        <section class="panel mobile-page" id="statusPanel" data-mobile-view="home">
+          <h2>数据状态</h2>
+          <div class="list" id="dataStatus"></div>
+          <p class="footer-note">零售页面经常隐藏优惠券价或结算价。系统会分别记录标价、结算价、库存、日期与来源。</p>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <div class="install-tip" id="installTip" hidden>
+    <div><strong>像 App 一样使用</strong><span>在 Safari 中点“分享” → “添加到主屏幕”。</span></div>
+    <button id="dismissInstallTip" type="button" aria-label="关闭">×</button>
+  </div>
+
+  <nav class="mobile-nav" aria-label="移动端导航">
+    <button type="button" data-view="home" class="active"><span aria-hidden="true">⌂</span><b>概览</b></button>
+    <button type="button" data-view="products"><span aria-hidden="true">▦</span><b>产品</b></button>
+    <button type="button" data-view="quotes"><span aria-hidden="true">¥</span><b>报价</b></button>
+    <button type="button" data-view="build"><span aria-hidden="true">✓</span><b>配置</b></button>
+  </nav>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="data-bundle.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
