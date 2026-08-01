@@ -1,23 +1,43 @@
-name: Validate procurement data
+name: Validate and build procurement data
 
 on:
   push:
     paths:
       - "data/**"
       - "scripts/**"
+      - "dashboard/**"
+      - ".github/workflows/validate-data.yml"
   pull_request:
     paths:
       - "data/**"
       - "scripts/**"
+      - "dashboard/**"
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
-  validate:
+  validate-and-build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: python scripts/validate_data.py
-      - run: python scripts/build_data_bundle.py
+      - name: Validate structured data
+        run: python scripts/validate_data.py
+      - name: Build browser data bundle
+        run: python scripts/build_data_bundle.py
+      - name: Commit generated bundle
+        if: github.event_name != 'pull_request'
+        run: |
+          if git diff --quiet -- data-bundle.js; then
+            echo "data-bundle.js is already current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data-bundle.js
+          git commit -m "Build procurement dashboard data bundle"
+          git push
