@@ -1,0 +1,56 @@
+name: 手动价格提交
+description: 提交京东、淘宝或天猫的个人结算价
+title: "[价格提交] "
+labels: ["manual-price"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请优先从 Dashboard 的“录入价格”按钮进入；它会自动生成结构化内容。本模板用于备用手动提交。
+  - type: input
+    id: product_id
+    attributes:
+      label: 产品 ID
+      description: 例如 cpu-amd-ryzen-7-9700x
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: 平台
+      options:
+        - 京东
+        - 淘宝
+        - 天猫
+    validations:
+      required: true
+  - type: input
+    id: listing_title
+    attributes:
+      label: 中文商品标题
+    validations:
+      required: true
+  - type: input
+    id: checkout_price
+    attributes:
+      label: 最终结算价（CNY）
+    validations:
+      required: true
+  - type: input
+    id: source_url
+    attributes:
+      label: 商品链接
+    validations:
+      required: true
+  - type: input
+    id: observed_at
+    attributes:
+      label: 查询日期
+      placeholder: YYYY-MM-DD
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: 补充说明
+      description: PLUS/88VIP、国补、需领券、地区限制、店铺名称等
